@@ -1,0 +1,55 @@
+<html>
+  <head><title>form_field_fill_ordering</title></head>
+  <div id="from_server">
+      This came back from the server
+      <div id="data">${data}</div>
+  </div>
+  <body>
+  <form name="example1" action="/form/fill" method="POST">
+    <select id="subderivate" name="subderivate">
+    </select>
+    <select id="derivate" name="derivate">
+    </select>
+    Language : <select id="language" name="language">
+      <option value="port">Portugues</option>
+      <option value="engl">English</option>
+      <option value="espa">Espagnol</option>
+      <option value="espe">Esperanto</option>
+      </select>
+    </form>
+
+    <hr/>
+    <form method="POST">
+      <input type="text" name="xx_a"/>
+      <input type="text" name="xx_b"/>
+      <fieldset>
+        <input type="checkbox" name="xx_boxes" value="1">
+        <input type="checkbox" name="xx_boxes" value="2">
+        <input type="checkbox" name="xx_boxes" value="3">
+      </fieldset>
+    </form>
+
+    <script type="text/javascript" src="/javascript/jquery-1.4.2.min.js">
+      //
+    </script>
+    <script type="text/javascript">
+      $('select[name="language"]').change(function() {
+        if ($('select[name="language"]').attr('value') == 'espa') {
+          $('select[name="derivate"]').append('<option>None</option><option value="cast">Castechoto</option><option value="lunf">Lunfardo</option>');
+         }
+         else {
+          $('select[name="derivate"]').empty();
+         }
+      });
+      $('select[name="derivate"]').change(function() {
+        if ($('select[name="derivate"]').attr('value') == 'lunf') {
+
+          $('select[name="subderivate"]').append('<option>None</option><option value="rosa">Rosaringazo</option>');
+         }
+         else {
+          $('select[name="subderivate"]').empty();
+         }
+      });
+    </script>
+  </body>
+</html>

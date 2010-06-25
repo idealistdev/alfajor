@@ -1,0 +1,12 @@
+MANIFEST
+*.py?
+*.egg-info
+*,cover
+.DS_Store
+.coverage
+.coverage.*
+cover
+htmlcov
+bin/*
+include
+lib

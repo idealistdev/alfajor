@@ -1,0 +1,51 @@
+d>
+        <title>forms</title>
+    </head>
+    <body>
+        <h2>Method</h2>
+        <div id="method">${request.method}</div>
+        <h2>All Data</h2>
+        <div id="data">${data}</div>
+        <p id="request_id">${request_id}</p>
+        <hr>
+        <form method="GET">
+          Search: <input name="search">
+        </form>
+        <form method="POST">
+          Search: <input name="search">
+        </form>
+        <form method="POST">
+          Search: <input name="search">
+          <input type="submit">
+        </form>
+        <form method="POST">
+          Search: <input name="search">
+          <input type="submit" value="Submit">
+        </form>
+        <form method="POST">
+          Search: <input name="search">
+          <input type="submit" name="submitA" value="SubmitA">
+        </form>
+        <form method="POST">
+          Search: <input name="search">
+          <input type="submit" name="submitA" value="SubmitA">
+          <input type="submit" value="SubmitB">
+        </form>
+        <form method="POST">
+          Search: <input name="search">
+          <input type="submit" name="submitA" value="SubmitA">
+          <input type="submit" name="submitB" value="SubmitB">
+        </form>
+        <form method="POST">
+          Search: <input name="search">
+          <input type="submit" name="submitA">
+        </form>
+        <form method="POST">
+          X: <input type="text" name="x">
+          Y: <input type="text" name="y">
+          <input type="submit" name="submitA" value="SubmitA">
+        </form>
+        <input type="submit" id="floater" name="floater" value="x">
+    </body>
+</html>
+

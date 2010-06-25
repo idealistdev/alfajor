@@ -1,0 +1,44 @@
+<html>
+  <head><title>waitfor</title>
+
+    <script type="text/javascript" src="/javascript/jquery-1.4.2.min.js">
+      //
+    </script>
+
+    <script type="text/javascript">
+      var exampleCount = 0;
+      $(document).ready(function(){
+        $('#remover').click(function() {
+          $('#removeme').remove();
+        });
+        $('#counter').click(function() {
+          for (var i=0;i<100;i++) {
+            exampleCount++;
+          }
+        });
+        $('#appender').click(function() {
+          $('body').append('<p id="expected_p">expected p</p>');
+        });
+        $('#ajaxappender').click(function() {
+          var ajaxHandler = function(data){
+            var value = $(data);
+            value.find('.count').text($.active);
+            $('body').append(value);
+          };
+          //kick off 3 simultaneous ajax events
+          $.get('/ajax', ajaxHandler);
+          $.get('/ajax', ajaxHandler);
+          $.get('/ajax', ajaxHandler);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <a href="#" id="remover">wait_for_element_not_present</a>
+    <div id="removeme">wait_for_element_not_present</div>
+    <a href="#" id="counter">wait_for_js</a>
+    <a href="#" id="appender">wait_for_element</a>
+    <a href="#" id="ajaxappender">wait_for_ajax</a>
+  </body>
+</html>
+

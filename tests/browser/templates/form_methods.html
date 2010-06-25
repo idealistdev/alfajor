@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <title>forms</title>
+    </head>
+    <body>
+        <h2>Query String Data</h2>
+        <div id="get_data">${args}</div>
+        <h2>POST Data</h2>
+        <div id="post_data">${form}</div>
+        <hr>
+        <form action="/form/methods" method="GET">
+            First Name:  <input type="text" name="first_name" />
+            Email: <input name="email" />
+        </form>
+        <form method="GET">
+            First Name:  <input type="text" name="first_name" />
+            Email: <input name="email" />
+        </form>
+        <form>
+            First Name:  <input type="text" name="first_name" />
+            Email: <input name="email" />
+        </form>
+        <form action="/form/methods?${request.query_string}">
+            First Name:  <input type="text" name="first_name" />
+            Email: <input name="email" />
+        </form>
+        <form action="/form/methods" method="POST">
+            First Name:  <input type="text" name="first_name" />
+            Email: <input name="email" />
+        </form>
+        <form action="/form/methods?${request.query_string}" method="POST">
+            First Name:  <input type="text" name="first_name" />
+            Email: <input name="email" />
+        </form>
+    </body>
+</html>

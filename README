@@ -1,0 +1,84 @@
+Alfajor
+-------
+
+Tasty functional testing.
+
+Alfajor provides a modern, object-oriented and browser-neutral interface to
+HTTP resources.  With Alfajor, your Python scripts and test code have a live,
+synchronized mirror of the browser's X/HTML DOM, even with DOM changes made on
+the client by JavaScript.
+
+Alfajor provides:
+
+ - A straightforward 'browser' object, with an implementation that
+   communicates in real-time with live web browsers via Selenium and a fast,
+   no-javascript implementation via an integrated WSGI gateway
+
+ - Use a specific browser, or, via integration with the 'nose' test runner,
+   switch out the browser backend via a command line option to your tests.
+   Firefox, Safari, WSGI- choose which you want on a run-by-run basis.
+
+ - Synchronized access to the page DOM via a rich dialect of lxml, with great
+   time-saving shortcuts that make tests compact, readable and fun to write.
+
+ - Optional management of server processes under test, allowing them to
+   transparently start and stop on demand as your tests run.
+
+ - An 'apiclient' with native JSON response support, useful for testing REST
+   and web api implementations at a fine-grained level.
+
+ - A friendly BSD license.
+
+Behind the scenes, Alfajor has a well-defined structure that supports plugins
+for new browser backends and testing requirements.  The following plugins are
+already underway or in planning:
+
+ - Windmill
+ - Selenium 2.0 / WebDriver
+ - cloud-based Selenium testing services
+ - py.test integration
+
+Getting Started
+===============
+
+This is the alpha-release README.  Please, bear with us as we assemble
+traditional documentation and tutorial material.  Until then...
+
+To get started quickly, use the Alfajor self-tests to see it in action:
+
+Setup:
+
+ 1) create and activate a virtualenv (optional)
+ 2) cd to the top of this distribution
+ 3) python setup.py develop
+ 4) easy_install nose
+
+If you don't have Selenium installed, download Selenium RC.  All you need is
+the selenium-server.jar, and no configuration is required.  Run it with 'java
+-jar selenium-server.jar'.
+
+Action:
+
+ 1) nosetests --help
+
+ After following the steps above, the Alfajor plugin should be available
+ and listing command-line options for nose.
+
+ 2) nosetests
+
+ You just ran a whole mess of tests against an in-process web app through
+ a WSGI interface.
+
+ 3) nosetests --browser=firefox
+
+ You just ran the same mess of tests in a real web browser!
+
+ You can try other browser names: safari, etc.
+
+------------------------------------------------------------------------------
+
+The main action of Alfajor is directed through an alfajor.ini file.  At the
+simplest, this can be anywhere on the filesystem (see the --alfajor-config
+option in nose) or placed in the same directory as the .py file that
+configures the WebBrowser.  See tests/webapp/{__init__.py,alfajor.ini}.
+
