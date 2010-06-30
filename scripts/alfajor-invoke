@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+"""An alternate version of alfajor-invoke that can run in a source checkout."""
+import os
+import sys
+
+here = os.path.dirname(__file__)
+try:
+    from alfajor.utilities import invoke
+except ImportError:
+    sys.path.append(os.path.join(here, os.path.pardir))
+    from alfajor.utilities import invoke
+
+invoke()
