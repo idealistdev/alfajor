@@ -38,10 +38,13 @@ Alfajor provides:
 
 from setuptools import setup, find_packages
 
+import alfajor
+version = alfajor.__version__
 
 setup(name="alfajor",
-      version="0.1",
-      packages=find_packages(),
+      version=version,
+      packages=find_packages(exclude=[
+          '*.tests', '*.tests.*', 'tests.*', 'tests']),
 
       author='Action Without Borders, Inc.',
       author_email='jason@idealist.org',  # FIXME
