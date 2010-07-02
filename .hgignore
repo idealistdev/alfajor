@@ -12,3 +12,14 @@ htmlcov
 bin/*
 include
 lib
+dist
+build
+
+docs/text
+docs/html
+docs/doctrees
+docs/doctest
+docs/pickles
+docs/source/_static
+docs/source/_template
+
