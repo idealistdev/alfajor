@@ -8,12 +8,14 @@
 
 from __future__ import absolute_import
 import cookielib
+from cookielib import Cookie
 import dummy_threading
 from cStringIO import StringIO
 from logging import getLogger
 import os.path
 from urlparse import urljoin, urlparse, urlunparse
 from time import time
+import urllib2
 from wsgiref.util import request_uri
 
 from blinker import signal
@@ -56,7 +58,6 @@ class WSGI(DOMMixin):
         'cookies',
         'headers',
         'status',
-        'upload',
         ]
 
     wait_expression = WaitExpression
@@ -109,19 +110,34 @@ class WSGI(DOMMixin):
 
     @property
     def cookies(self):
-        if not self._referrer:
+        if not (self._cookie_jar and self.location):
             return {}
-        environ = self._create_environ(self._referrer, 'GET', None, True)
-        return parse_cookie(environ, self._charset)
+        request = urllib2.Request(self.location)
+        policy = self._cookie_jar._policy
+        policy._now = int(time())
+        return dict(
+            ((cookie.name,
+              cookie.value[1:-1] if cookie.value.startswith('"') else cookie.value)
+            for cookie in self._cookie_jar
+            if policy.return_ok(cookie, request))
+        )
 
-    def set_cookie(self, name, value, domain=None, path=None):
-        # TODO
-        # create Cookie
-        # self._cookie_jar.set_cookie(cookie)
-        pass
+    def set_cookie(self, name, value, domain=None, path=None,
+                   session=True, expires=None, port=None):
+#        Cookie(version, name, value, port, port_specified,
+#                 domain, domain_specified, domain_initial_dot,
+#                 path, path_specified, secure, expires,
+#                 discard, comment, comment_url, rest,
+#                 rfc2109=False):
+
+        cookie = Cookie(0, name, value, port, bool(port),
+                        domain or '', bool(domain),
+                        (domain and domain.startswith('.')),
+                        path or '', bool(path), False, expires,
+                        session, None, None, {}, False)
+        self._cookie_jar.set_cookie(cookie)
 
     def delete_cookie(self, name, domain=None, path=None):
-        # TODO
         try:
             self._cookie_jar.clear(domain, path, name)
         except KeyError:
@@ -243,14 +259,8 @@ class WSGI(DOMMixin):
                 prepped['query_string'] = url_encode(qs)
             return prepped
         else:
-            if content_type == 'multipart/form-data':
-                data = [(k, _wrap_file(*v)) if isinstance(v, tuple) else (k,v)
-                        for k,v in data]
-                boundary, payload = encode_multipart(MultiDict(to_pairs(data)))
-                content_type = 'multipart/form-data; boundary=' + boundary
-            else:
-                payload = url_encode(MultiDict(to_pairs(data)))
-                content_type = 'application/x-www-form-urlencoded'
+            payload = url_encode(MultiDict(to_pairs(data)))
+            content_type = 'application/x-www-form-urlencoded'
             return {
                 'input_stream': StringIO(payload),
                 'content_length': len(payload),

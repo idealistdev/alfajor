@@ -2,6 +2,7 @@ MANIFEST
 *.py?
 *.egg-info
 *,cover
+*.swp
 .DS_Store
 .coverage
 .coverage.*

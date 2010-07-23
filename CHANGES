@@ -1,6 +1,9 @@
 Alfajor Release History
 =======================
 
+ - Added a browser called 'network' which talks to a web server
+   over a network socket using urllib2.
+
 
 0.1 (June 24th, 2010)
 ---------------------

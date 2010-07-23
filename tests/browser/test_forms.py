@@ -31,7 +31,6 @@ def test_get():
 
 
 def test_get_qs_append():
-    # "blank" submit should round trip stuff in the query string
     browser.open('/form/methods?stuff=already&in=querystring')
     form = browser.document.forms[3]
     form.submit(wait_for='page')
@@ -40,7 +39,6 @@ def test_get_qs_append():
     assert sorted(get) == [['email', ''], ['first_name', '']]
     assert post == []
 
-    # amended submit should include existing stuff plus new submission
     browser.open('/form/methods?stuff=already&in=querystring')
     form = browser.document.forms[3]
     form.fill({'email': 'snorgle'})
@@ -190,32 +188,6 @@ def test_multipart_simple():
     browser.document.forms[0].submit(wait_for='page')
     data = loads(browser.document['#data'].text_content)
     assert data == [['search', 'foobar']]
-
-
-def test_multipart_file():
-    if 'upload' not in browser.capabilities:
-        return
-
-    browser.open('/form/multipart')
-    files = loads(browser.document['#files'].text_content)
-    assert files == []
-
-    filename = os.path.join(os.path.dirname(__file__),
-                            'images', 'bread.jpg')
-    browser.document.forms[1]['input[name=file]'][0].value = filename
-    browser.document.forms[1].submit(wait_for='page')
-    files = loads(browser.document['#files'].text_content)
-
-    #[[u'file', [u'bread.jpg', u'image/jpeg', 0,
-    # u'/var/folders/1v/1vxraEFhFWSxUV1jAExVYE+++TI/-Tmp-/tmptsBwrz']]]
-
-    assert files[0][0] == 'file'
-    assert files[0][1][0:2] == [os.path.basename(filename), 'image/jpeg']
-    resaved_name = files[0][1][3]
-    original_stat = os.stat(filename)
-    new_stat = os.stat(resaved_name)
-    os.remove(resaved_name)
-    assert original_stat.st_size == new_stat.st_size
 
 
 def test_formless_submit_button():

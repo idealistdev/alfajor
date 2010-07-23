@@ -43,7 +43,7 @@ class Alfajor(Plugin):
                          '[ALFAJOR_BROWSER]')
         group.add_option('--alfajor-config',
                          dest='alfajor_ini_file',
-                         metavar='ALFAJORN_CONFIG',
+                         metavar='ALFAJOR_CONFIG',
                          default=env.get('ALFAJOR_CONFIG'),
                          help='Specify the name of your configuration file,'
                          'which can be any path on the system. Defaults to'

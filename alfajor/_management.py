@@ -26,6 +26,7 @@ managers = {
     'browser': {
         'selenium': 'alfajor.browsers.managers:SeleniumManager',
         'wsgi': 'alfajor.browsers.managers:WSGIManager',
+        'network': 'alfajor.browsers.managers:NetworkManager',
         'zero': 'alfajor.browsers.managers:ZeroManager',
         },
     'apiclient': {

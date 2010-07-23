@@ -4,13 +4,21 @@
 # This file is part of 'alfajor' and is distributed under the BSD license.
 # See LICENSE for more details.
 
+from datetime import datetime
 import time
 
-from nose.tools import raises
+from nose.tools import raises, with_setup
 
 from . import browser
 
 
+def setup_fn():
+    browser.reset()
+
+def teardown_fn():
+    pass
+
+@with_setup(setup_fn, teardown_fn)
 def test_simple():
     browser.open('/')
 
@@ -29,6 +37,7 @@ def test_simple():
     assert browser.document.cssselect('p')[0].text == 'hi there'
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_reset():
     # TODO: flesh this out when cookie querying is working and has
     # test coverage.  until then, just verify that the method doesn't
@@ -37,12 +46,14 @@ def test_reset():
     browser.reset()
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_user_agent():
     browser.open('/')
     ua = browser.user_agent
     assert ua['browser'] != 'unknown'
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_traversal():
     browser.open('/seq/a')
     a_id = browser.document['#request_id'].text
@@ -66,6 +77,7 @@ def test_traversal():
     assert '/seq/b' in browser.cssselect('p.referrer')[0].text
 
 
+@with_setup(setup_fn, teardown_fn)
 def _test_single_cookie(bounce):
     browser.open('/')
     assert not browser.cookies
@@ -85,11 +97,13 @@ def _test_single_cookie(bounce):
     assert not browser.cookies
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_single_cookie():
     yield _test_single_cookie, False
     yield _test_single_cookie, True
 
 
+@with_setup(setup_fn, teardown_fn)
 def _test_multiple_cookies(bounce):
     browser.open('/')
     assert not browser.cookies
@@ -110,16 +124,19 @@ def _test_multiple_cookies(bounce):
     assert not browser.cookies
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_multiple_cookies():
     yield _test_multiple_cookies, False
     yield _test_multiple_cookies, True
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_wait_for():
     # bare minimum no side-effects call browser.wait_for
     browser.wait_for('duration', 1)
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_wait_for_duration():
     if 'selenium' in browser.capabilities:
         start = time.time()
@@ -128,6 +145,7 @@ def test_wait_for_duration():
         assert duration >= 1
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_wait_for_element():
     if 'selenium' in browser.capabilities:
         browser.open('/waitfor')
@@ -137,6 +155,7 @@ def test_wait_for_element():
 
 
 @raises(AssertionError)
+@with_setup(setup_fn, teardown_fn)
 def test_wait_for_element_not_found():
     if 'selenium' in browser.capabilities:
         browser.open('/waitfor')
@@ -145,6 +164,7 @@ def test_wait_for_element_not_found():
         raise AssertionError('Ignore if not selenium')
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_wait_for_element_not_present():
     if 'selenium' in browser.capabilities:
         browser.open('/waitfor')
@@ -154,6 +174,7 @@ def test_wait_for_element_not_present():
         assert not browser.cssselect('#removeme')
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_wait_for_ajax():
     if 'selenium' in browser.capabilities:
         browser.open('/waitfor')
@@ -162,8 +183,25 @@ def test_wait_for_ajax():
         assert len(browser.cssselect('.ajaxAdded')) == 3
 
 
+@with_setup(setup_fn, teardown_fn)
 def test_wait_for_js():
     if 'selenium' in browser.capabilities:
         browser.open('/waitfor')
         browser.cssselect('#counter')[0].click(
             wait_for='js:window.exampleCount==100;', timeout=3000)
+
+
+@with_setup(setup_fn, teardown_fn)
+def test_set_cookie():
+    if 'cookies' in browser.capabilities:
+        browser.open('/')
+        browser.set_cookie('foo', 'bar')
+        browser.set_cookie('py', 'py', 'localhost', port='8080')
+        browser.set_cookie('green', 'frog',
+                           session=False, expires=3600)
+
+        assert 'foo' in browser.cookies
+        # TODO:sw Busted
+        #assert 'py' in browser.cookies
+        #assert 'green' in browser.cookies
+
