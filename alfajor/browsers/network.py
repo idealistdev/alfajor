@@ -81,12 +81,12 @@ class Network(DOMMixin):
             return {}
         request = urllib2.Request(self.location)
         policy = self._cookie_jar._policy
-        return dict(
-            ((cookie.name,
-              cookie.value[1:-1] if cookie.value.startswith('"') else cookie.value)
-            for cookie in self._cookie_jar
-            if policy.return_ok(cookie, request))
-        )
+
+        # return ok will only return a cookie if the following attrs are set
+        # correctly => # "version", "verifiability", "secure", "expires",
+        # "port", "domain"
+        return dict((c.name, c.value.strip('"'))
+            for c in self._cookie_jar if policy.return_ok(c, request))
 
     def set_cookie(self, name, value, domain=None, path=None,
                    session=True, expires=None, port=None):
@@ -166,5 +166,4 @@ class Network(DOMMixin):
                     url, request_time,
                     open_ended - open_started - request_time)
         after_browser_activity.send(self)
-
 

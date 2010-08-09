@@ -16,6 +16,7 @@ import re
 import time
 from urllib2 import urlopen, Request
 from urlparse import urljoin
+from warnings import warn
 
 from blinker import signal
 from werkzeug import UserAgent, url_encode
@@ -42,6 +43,9 @@ logger = getLogger('tests.browser')
 after_browser_activity = signal('after_browser_activity')
 before_browser_activity = signal('before_browser_activity')
 _enterable_chars_re = re.compile(r'(\\[a-z]|\\\d+|.)')
+csv.register_dialect('cookies', delimiter=';',
+                     skipinitialspace=True,
+                     quoting=csv.QUOTE_NONE)
 
 
 class Selenium(DOMMixin):
@@ -139,22 +143,15 @@ class Selenium(DOMMixin):
     @property
     def cookies(self):
         """A dictionary of cookie names and values."""
-        # TODO:jek: pass this off to the driver? let it use a customized csv
-        # reader to split & unpack?
-        cookie_strings = self.selenium('getCookie').split('; ')
-        cookies = dict()
-        for cookie_string in cookie_strings:
-            if not cookie_string:
-                continue
-            key, val = cookie_string.split('=', 1)
-            cookies[key] = val.strip('"')
-        return cookies
+        return self.selenium('getCookie', dict=True)
 
-    def set_cookie(self, name, value, domain=None, path=None):
+    def set_cookie(self, name, value, domain=None, path=None, max_age=None,
+                   session=None, expires=None, port=None):
+        if domain or session or expires or port:
+            message = "Selenium Cookies support only path and max_age"
+            warn(message, UserWarning)
         cookie_string = '%s=%s' % (name, value)
-        options_string = ''
-        if path:
-            options_string += 'path=%s' % path
+        options_string = '' if not path else 'path=%s' % path
         self.selenium('createCookie', cookie_string, options_string)
 
     def delete_cookie(self, name, domain=None, path=None):
@@ -197,6 +194,7 @@ class SeleniumRemote(object):
     def __call__(self, command, *args, **kw):
         transform = _transformers[kw.pop('transform', 'unicode')]
         return_list = kw.pop('list', False)
+        return_dict = kw.pop('dict', False)
         assert not kw, 'Unknown keyword argument.'
 
         payload = {'cmd': command, 'sessionId': self._session_id}
@@ -218,6 +216,15 @@ class SeleniumRemote(object):
         if return_list:
             rows = list(csv.reader(StringIO(data)))
             return [transform(col) for col in rows[0]]
+
+        elif return_dict:
+            rows = list(csv.reader(StringIO(data), 'cookies'))
+
+            if rows:
+                return dict(
+                    map(lambda x: x.strip('"'), x.split('=')) for x in rows[0])
+            else:
+                return {}
         else:
             return transform(data)
 
@@ -312,6 +319,7 @@ def event_sender(name):
     def handler(self, wait_for=None, timeout=None):
         before_browser_activity.send(self.browser)
         self.browser.selenium(selenium_name, self._locator)
+        # XXX:dc: when would a None wait_for be a good thing?
         if wait_for:
             self.browser.wait_for(wait_for, timeout)
         time.sleep(0.2)

@@ -7,7 +7,6 @@
 from alfajor._compat import json_loads as loads
 
 from nose.tools import eq_, raises
-import os.path
 
 from . import browser
 

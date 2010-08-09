@@ -7,8 +7,10 @@
 """Integration with the 'nose' test runner."""
 
 from __future__ import absolute_import
+from base64 import b64decode
 from logging import getLogger
 from optparse import OptionGroup
+from os import path
 
 from nose.plugins.base import Plugin
 
@@ -22,10 +24,11 @@ class Alfajor(Plugin):
 
     name = 'alfajor'
     enabled = True  # FIXME
+    alfajor_enabled_screenshot = False
 
     def __init__(self):
         Plugin.__init__(self)
-        self._contexts = {}
+        self._contexts = []
 
     def options(self, parser, env):
         group = OptionGroup(parser, "Alfajor options")
@@ -70,6 +73,19 @@ class Alfajor(Plugin):
                          '[ALFAJOR_SERVER_URL]')
         parser.add_option_group(group)
 
+        group = OptionGroup(parser, "Alfajor Screenshot Options")
+        group.add_option(
+            "--screenshot", action="store_true",
+            dest="alfajor_enabled_screenshot",
+            default=env.get('ALFAJOR_SCREENSHOT', False),
+            help="Take screenshots of failed pages")
+        group.add_option(
+            "--screenshot-dir",
+            dest="alfajor_screenshot_dir",
+            default=env.get('ALFAJOR_SCREENSHOT_DIR', ''),
+            help="Dir to store screenshots")
+        parser.add_option_group(group)
+
     def configure(self, options, config):
         Plugin.configure(self, options, config)
         alfajor_options = {}
@@ -105,13 +121,46 @@ class Alfajor(Plugin):
             managers.add((manager, declaration))
             declaration.proxy._factory = manager.create
         if managers:
-            self._contexts[context] = managers
+            self._contexts.append((context, managers))
 
     def stopContext(self, context):
-        if context not in self._contexts:
-            return
-        managers = self._contexts.pop(context)
-        for manager, declaration in managers:
-            manager.destroy()
-            declaration.proxy._instance = None
-            declaration.proxy._factory = None
+        # self._contexts is a list of tuples, [0] is the context key
+        if self._contexts and context == self._contexts[-1][0]:
+            key, managers = self._contexts.pop(-1)
+            for manager, declaration in managers:
+                manager.destroy()
+                declaration.proxy._instance = None
+                declaration.proxy._factory = None
+
+    def addError(self, test, err):
+        instance = None
+        if self._contexts:
+            context, managers = self._contexts[-1]
+            if not managers:
+                return
+            manager, declaration = managers.pop()
+            instance = declaration.proxy._instance
+        if (self.options['enabled_screenshot'] and
+            hasattr(instance, 'selenium')):
+            self.screenshot(instance, test)
+
+    def addFailure(self, test, err):
+        instance = None
+        if self._contexts:
+            contexts, managers = self._contexts[-1]
+            if not managers:
+                return
+            manager, declaration = managers.pop()
+            instance = declaration.proxy._instance
+        if (self.options['enabled_screenshot'] and
+            hasattr(instance, 'selenium')):
+            self.screenshot(instance, test)
+
+    def screenshot(self, instance, test):
+        test_name = test.id().split('.')[-1]
+        directory = self.options['screenshot_dir']
+        output_file = open('/'.join(
+                [path.abspath(directory), test_name + '.png']), "w")
+        img = instance.selenium.capture_entire_page_screenshot_to_string()
+        output_file.write(b64decode(img))
+        output_file.close()

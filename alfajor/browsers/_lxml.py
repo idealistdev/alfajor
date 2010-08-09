@@ -199,7 +199,7 @@ class DOMElement(object):
         if not isinstance(key, basestring):
             return super(DOMElement, self).__getitem__(key)
         # '#foo'?  (and not '#foo li')
-        if _single_id_selector.match('#'):
+        if _single_id_selector.match(key):
             try:
                 return self.get_element_by_id(key[1:])
             except KeyError:

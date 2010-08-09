@@ -34,6 +34,12 @@ Alfajor provides:
    and web api implementations at a fine-grained level.
 
  - A friendly BSD license.
+
+An `in-development`_ version is also available
+
+.. _`in-development`: http://github.com/idealist/alfajor/zipball/master#egg=alfajor-dev
+
+
 """
 
 from setuptools import setup, find_packages
@@ -86,6 +92,6 @@ setup(name="alfajor",
         'blinker',
         ],
       tests_require=[
-        'nose == 0.11.3',
+        'nose',
         ],
       )

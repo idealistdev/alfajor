@@ -115,21 +115,25 @@ class WSGI(DOMMixin):
         request = urllib2.Request(self.location)
         policy = self._cookie_jar._policy
         policy._now = int(time())
-        return dict(
-            ((cookie.name,
-              cookie.value[1:-1] if cookie.value.startswith('"') else cookie.value)
-            for cookie in self._cookie_jar
-            if policy.return_ok(cookie, request))
-        )
+
+        # return ok will only return a cookie if the following attrs are set
+        # correctly => # "version", "verifiability", "secure", "expires",
+        # "port", "domain"
+        return dict((c.name, c.value.strip('"'))
+            for c in self._cookie_jar if policy.return_ok(c, request))
 
     def set_cookie(self, name, value, domain=None, path=None,
-                   session=True, expires=None, port=None):
-#        Cookie(version, name, value, port, port_specified,
-#                 domain, domain_specified, domain_initial_dot,
-#                 path, path_specified, secure, expires,
-#                 discard, comment, comment_url, rest,
-#                 rfc2109=False):
-
+                   session=True, expires=None, port=None, request=None):
+        """
+        :param expires: Seconds from epoch
+        :param port: must match request port
+        :param domain: the fqn of your server hostname
+        """
+        # Cookie(version, name, value, port, port_specified,
+        # domain, domain_specified, domain_initial_dot,
+        # path, path_specified, secure, expires,
+        # discard, comment, comment_url, rest,
+        # rfc2109=False):
         cookie = Cookie(0, name, value, port, bool(port),
                         domain or '', bool(domain),
                         (domain and domain.startswith('.')),
