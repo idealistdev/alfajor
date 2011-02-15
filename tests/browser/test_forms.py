@@ -222,7 +222,10 @@ def _test_select(form_num, fieldname, value, expected_return):
         strategy()
         browser.document.forms[form_num]['input[type=submit]'][0].click()
         data = loads(browser.document['#data'].text)
-        eq_(data, [[fieldname, expected_return]])
+        if isinstance(expected_return, basestring):
+            expected_return = [expected_return]
+        eq_(sorted(data), [[fieldname, val]
+            for val in sorted(expected_return)])
 
 
 def test_select_empty():
@@ -243,6 +246,16 @@ def test_select_text_only():
 
 def test_select_combo():
     _test_select(0, 'sel', 'combo', 'combo')
+
+
+def test_select_multiple():
+    _test_select(2, 'multi_sel', ['first', 'third'],
+                ['first', 'third'])
+
+
+def test_select_multiple_value_only_and_others():
+    _test_select(2, 'multi_sel', ['second', 'Fourth option'],
+                    ['second', 'Fourth option'])
 
 
 def test_basic_checkbox_state():
