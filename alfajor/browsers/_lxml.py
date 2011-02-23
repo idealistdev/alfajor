@@ -311,9 +311,7 @@ class FormElement(object):
                     elif el.multiple:
                         for v in value:
                             results.append((name, v))
-                            continue
-                    if results:
-                        return results
+                        continue
                 elif type == 'file':
                     if value:
                         mimetype = mimetypes.guess_type(value)[0] \
