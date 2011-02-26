@@ -384,13 +384,13 @@ def _fill_form_async(form, values, wait_for=None, timeout=None):
         unset_count = len(values)
 
 
-def type_text(element, text, wait_for=None, timeout=0):
+def type_text(element, text, wait_for=None, timeout=0, allow_newlines=False):
     # selenium.type_keys() doesn't work with non-printables like backspace
     selenium, locator = element.browser.selenium, element._locator
     # Store the original value
     field_value = element.value
     for char in _enterable_chars_re.findall(text):
-        field_value = _append_text_value(field_value, char, False)
+        field_value = _append_text_value(field_value, char, allow_newlines)
         if len(char) == 1 and ord(char) < 32:
             char = r'\%i' % ord(char)
         selenium.key_down(locator, char)
@@ -490,7 +490,8 @@ class TextareaElement(TextareaElement):
         self.browser.selenium('type', self._locator, value)
 
     def enter(self, text, wait_for='duration', timeout=0.1):
-        type_text(self, text, wait_for, timeout)
+        type_text(self, text, wait_for, timeout, allow_newlines=True)
+
 
 def _get_value_and_locator_from_option(option):
     if 'value' in option.attrib:

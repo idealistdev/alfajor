@@ -169,8 +169,10 @@ def test_textarea():
 
     textarea = browser.document.forms[0]['textarea'][0]
     textarea.enter('baz')
-    textarea.enter('\r\nquuX\r\n')
-    textarea.enter('\x08\x08x')
+    # NOTE: Webkit Selenium Browsers seem to trim the string on returned
+    # values (get).  Therefore do not end this test with a whitespace char.
+    textarea.enter('\r\nquuX\r\nY')
+    textarea.enter('\x08\x08\x08x')
     browser.document.forms[0].submit(wait_for='page')
     data = loads(browser.document['#data'].text_content)
     assert data == [['ta', 'baz\r\nquux']]
