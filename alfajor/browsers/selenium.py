@@ -492,6 +492,15 @@ class TextareaElement(TextareaElement):
     def enter(self, text, wait_for='duration', timeout=0.1):
         type_text(self, text, wait_for, timeout)
 
+def _get_value_and_locator_from_option(option):
+    if 'value' in option.attrib:
+        if option.get('value') is None:
+            return None, u'value=regexp:^$'
+        else:
+            return option.get('value'), u'value=%s' % option.get('value')
+    option_text = (option.text or u'').strip()
+    return option_text, u'label=%s' % option_text
+
 
 class SelectElement(SelectElement):
 
@@ -499,22 +508,21 @@ class SelectElement(SelectElement):
         super(SelectElement, self)._value__set(value)
         selected = [el for el in _options_xpath(self)
                     if 'selected' in el.attrib]
-        for el in selected:
-            if el.get('value') == value:
-                if value is None:
-                    option_locator = u'value=regexp:^$'
-                else:
-                    option_locator = u'value=%s' % value
-                break
-            el_text = (el.text or u'').strip()
-            value_text = (value or u'').strip()
-            if el_text == value_text:
-                option_locator = u'label=%s' % value_text
-                break
+        if self.multiple:
+            values = value
         else:
-            raise AssertionError("Option with value %r not present in "
-                                 "remote document!" % value)
-        self.browser.selenium('select', self._locator, option_locator)
+            values = [value]
+        for el in selected:
+            val, option_locator = _get_value_and_locator_from_option(el)
+            if val not in values:
+                raise AssertionError("Option with value %r not present in "
+                                     "remote document!" % val)
+            if self.multiple:
+                self.browser.selenium('addSelection', self._locator,
+                                        option_locator)
+            else:
+                self.browser.selenium('select', self._locator, option_locator)
+                break
 
     value = property(SelectElement._value__get, _value__set)
 
