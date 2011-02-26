@@ -138,8 +138,9 @@ class Alfajor(Plugin):
             context, managers = self._contexts[-1]
             if not managers:
                 return
-            manager, declaration = managers.pop()
-            instance = declaration.proxy._instance
+            assert len(managers) == 1
+            for manager, declaration in managers:
+                instance = declaration.proxy._instance
         if (self.options['enabled_screenshot'] and
             hasattr(instance, 'selenium')):
             self.screenshot(instance, test)
@@ -150,8 +151,9 @@ class Alfajor(Plugin):
             contexts, managers = self._contexts[-1]
             if not managers:
                 return
-            manager, declaration = managers.pop()
-            instance = declaration.proxy._instance
+            assert len(managers) == 1
+            for manager, declaration in managers:
+                instance = declaration.proxy._instance
         if (self.options['enabled_screenshot'] and
             hasattr(instance, 'selenium')):
             self.screenshot(instance, test)
