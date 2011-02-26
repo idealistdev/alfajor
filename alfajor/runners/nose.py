@@ -133,36 +133,35 @@ class Alfajor(Plugin):
                 declaration.proxy._factory = None
 
     def addError(self, test, err):
-        instance = None
-        if self._contexts:
-            context, managers = self._contexts[-1]
-            if not managers:
-                return
-            assert len(managers) == 1
-            for manager, declaration in managers:
-                instance = declaration.proxy._instance
-        if (self.options['enabled_screenshot'] and
-            hasattr(instance, 'selenium')):
-            self.screenshot(instance, test)
+        self.screenshotIfEnabled(test)
 
     def addFailure(self, test, err):
-        instance = None
-        if self._contexts:
-            contexts, managers = self._contexts[-1]
-            if not managers:
-                return
-            assert len(managers) == 1
-            for manager, declaration in managers:
-                instance = declaration.proxy._instance
-        if (self.options['enabled_screenshot'] and
-            hasattr(instance, 'selenium')):
-            self.screenshot(instance, test)
+        self.screenshotIfEnabled(test)
 
-    def screenshot(self, instance, test):
+    def screenshotIfEnabled(self, test):
+        if self.options['enabled_screenshot']:
+            selenium = self._getSelenium()
+            if selenium:
+                self.screenshot(selenium, test)
+
+    def _getSelenium(self):
+        """Get the selenium instance for this test if one exists.
+
+        Otherwise return None.
+        """
+        assert self._contexts
+        contexts, managers = self._contexts[-1]
+        for manager, declaration in managers:
+            instance = declaration.proxy._instance
+            if hasattr(instance, 'selenium'):
+                return instance.selenium
+        return None
+
+    def screenshot(self, selenium, test):
+        img = selenium.capture_entire_page_screenshot_to_string()
         test_name = test.id().split('.')[-1]
         directory = self.options['screenshot_dir']
         output_file = open('/'.join(
                 [path.abspath(directory), test_name + '.png']), "w")
-        img = instance.selenium.capture_entire_page_screenshot_to_string()
         output_file.write(b64decode(img))
         output_file.close()
