@@ -26,6 +26,7 @@ class WebApp(object):
             endpoint, args = urls.match()
         except NotFound, exc:
             args = {}
+            endpoint = '/'
         environ['routing_args'] = args
         environ['endpoint'] = endpoint
 
@@ -35,7 +36,6 @@ class WebApp(object):
             # ok, maybe it really was a bogus URL.
             return exc(environ, start_response)
         return response(environ, start_response)
-
 
     def template_renderer(self, request):
         endpoint = request.environ['endpoint']

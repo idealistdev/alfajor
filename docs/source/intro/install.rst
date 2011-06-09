@@ -4,7 +4,7 @@ Installing Alfajor
 
 The Alfajor repository is available for check out from our `github page`_.
 
-.. _github: https://github.com/idealistdev/alfajor
+.. _github: https://github.com/idealist/Alfajor
 
 
 Setup:

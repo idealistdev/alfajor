@@ -14,7 +14,7 @@ HTTP resources.  With Alfajor, your Python scripts and test code have a live,
 synchronized mirror of the browser's X/HTML DOM, even with DOM changes made on
 the client by JavaScript.
 
-Alfajor provides:
+alfajor provides:
 
  - A straightforward 'browser' object, with an implementation that
    communicates in real-time with live web browsers via Selenium and a fast,
@@ -37,7 +37,7 @@ Alfajor provides:
 
 An `in-development`_ version is also available
 
-.. _`in-development`: http://github.com/idealist/alfajor/zipball/master#egg=alfajor-dev
+.. _`in-development`: http://github.com/idealist/Alfajor/zipball/master#egg=alfajor-dev
 
 
 """
@@ -53,13 +53,13 @@ setup(name="alfajor",
           '*.tests', '*.tests.*', 'tests.*', 'tests']),
 
       author='Action Without Borders, Inc.',
-      author_email='jason@idealist.org',  # FIXME
+      author_email='oss@idealist.org',
 
       description='Tasty functional testing.',
       keywords='testing test functional integration browser ajax selenium',
       long_description=__doc__,
       license='BSD',
-      url='http://github.com/idealistdev/alfajor/',  # FIXME
+      url='http://github.com/idealist/Alfajor/',
 
       classifiers=[
           'Development Status :: 1 - Planning',
@@ -91,6 +91,7 @@ setup(name="alfajor",
         'lxml',
         'blinker',
         ],
+
       tests_require=[
         'nose',
         ],
