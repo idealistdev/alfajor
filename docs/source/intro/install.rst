@@ -4,7 +4,7 @@ Installing Alfajor
 
 The Alfajor repository is available for check out from our `github page`_.
 
-.. _github: https://github.com/idealist/Alfajor
+.. _`github page`: https://github.com/idealist/Alfajor
 
 
 Setup:
@@ -35,7 +35,9 @@ Run it with::
 
     $ java -jar selenium-server.jar
 
-.. _selenium: http://seleniumhq.org/download/
+.. _`Selenium Server`: http://seleniumhq.org/download/
+
+.. todo:: List which versions of Selenium are required
 
 
 See it in action:
@@ -55,16 +57,31 @@ To run the same tests but using a real web browser, type::
 
     $ nosetests --browser=firefox
 
-.. adominition:: You can use all sorts of browsers
+.. admonition:: You can use all sorts of browsers
 
     A list of valid browsers is:
-    * safari
-    * googlechrome
-
+      *firefox
+      *mock
+      *firefoxproxy
+      *pifirefox
+      *chrome
+      *iexploreproxy
+      *iexplore
+      *firefox3
+      *safariproxy
+      *googlechrome
+      *konqueror
+      *firefox2
+      *safari
+      *piiexplore
+      *firefoxchrome
+      *opera
+      *iehta
+      *custom
 
 .. admonition:: .ini Files
 
-    The main action of Alfajor is directed through an alfajor.ini file.  At the
+    The main action of Alfajor is directed through an :doc:`alfajor.ini </ini>` file.  At the
     simplest, this can be anywhere on the filesystem (see the --alfajor-config
     option in nose) or placed in the same directory as the .py file that
-    configures the WebBrowser.  See tests/webapp/{__init__.py,alfajor.ini}.
+    configures the WebBrowser.  See `tests/webapp/{__init__.py,alfajor.ini}`.
