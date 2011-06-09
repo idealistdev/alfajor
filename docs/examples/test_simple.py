@@ -1,4 +1,5 @@
-from tests.examples import browser, browser_test
+from docs.examples import browser, browser_test
+
 
 @browser_test()
 def test_entering_name():
