@@ -15,10 +15,10 @@ from textwrap import fill
 from lxml import html as lxml_html
 from lxml.etree import ElementTree, XPath
 from lxml.html import (
-    MultipleSelectOptions,
     fromstring as html_from_string,
     tostring,
     )
+from lxml.html._setmixin import SetMixin
 
 from alfajor._compat import property
 from alfajor.utilities import lazy_property, to_pairs
@@ -311,7 +311,7 @@ class FormElement(object):
                     elif el.multiple:
                         for v in value:
                             results.append((name, v))
-                            continue
+                        continue
                 elif type == 'file':
                     if value:
                         mimetype = mimetypes.guess_type(value)[0] \
@@ -342,54 +342,157 @@ class _InputControl(object):
             return None
 
 
+def _value_from_option(option):
+    """
+    Pulls the value out of an option element, following order rules of value
+    attribute, text and finally empty string.
+    """
+    opt_value = option.get('value')
+    if opt_value is None:
+        opt_value = option.text or u''
+    if opt_value:
+        opt_value = opt_value.strip()
+    return opt_value
+
+
+# More or less from
+class MultipleSelectOptions(SetMixin):
+    """
+    Represents all the selected options in a ``<select multiple>`` element.
+
+    You can add to this set-like option to select an option, or remove
+    to unselect the option.
+    """
+
+    def __init__(self, select):
+        self.select = select
+
+    def options(self):
+        """
+        Iterator of all the ``<option>`` elements.
+        """
+        return iter(_options_xpath(self.select))
+    options = property(options)
+
+    def __iter__(self):
+        for option in self.options:
+            if 'selected' in option.attrib:
+                yield _value_from_option(option)
+
+    def add(self, item):
+        for option in self.options:
+            opt_value = _value_from_option(option)
+            if opt_value == item:
+                option.set('selected', '')
+                break
+        else:
+            raise ValueError(
+                "There is no option with the value %r" % item)
+
+    def remove(self, item):
+        for option in self.options:
+            opt_value = _value_from_option(option)
+            if opt_value == item:
+                if 'selected' in option.attrib:
+                    del option.attrib['selected']
+                else:
+                    raise ValueError(
+                        "The option %r is not currently selected" % item)
+                break
+        else:
+            raise ValueError(
+                "There is not option with the value %r" % item)
+
+    def __repr__(self):
+        return '<%s {%s} for select name=%r>' % (
+            self.__class__.__name__,
+            ', '.join([repr(v) for v in self]),
+            self.select.name)
+
+
+# Patched from lxml
 class SelectElement(_InputControl):
+    """
+    ``<select>`` element.  You can get the name with ``.name``.
 
-    # derived from lxml
+    ``.value`` will be the value of the selected option, unless this
+    is a multi-select element (``<select multiple>``), in which case
+    it will be a set-like object.  In either case ``.value_options``
+    gives the possible values.
+
+    The boolean attribute ``.multiple`` shows if this is a
+    multi-select.
+    """
+
     def _value__get(self):
-        """Get/set the value of this select (the selected option).
+        """
+        Get/set the value of this select (the selected option).
 
-        If this is a multi-select, this is a set-like object that represents
-        all the selected options.
-
+        If this is a multi-select, this is a set-like object that
+        represents all the selected options.
         """
         if self.multiple:
             return MultipleSelectOptions(self)
-        options = _options_xpath(self)
-        for el in options:
-            if 'selected' in el.attrib:
-                value = el.get('value')
-                if value is None:
-                    value = (el.text or u'').strip()
-                return value
+        for el in _options_xpath(self):
+            if el.get('selected') is not None:
+                return _value_from_option(el)
         return None
 
     def _value__set(self, value):
         if self.multiple:
-            # TODO
-            raise NotImplementedError("Haven't gotten around to this yet.")
-
-        checked_option = None
-        options = _options_xpath(self)
-        for el in options:
-            if el.get('value') == value:
-                checked_option = el
-                break
-        else:
-            text_value = (value or u'').strip()
-            for el in options:
-                if el.get('value') is None:
-                    el_text = el.text
-                    if el_text is not None and el_text.strip() == text_value:
-                        checked_option = el
-                        break
-        if checked_option is None:
-            raise ValueError("There is no option with the value of %r" % value)
-        for el in options:
+            if isinstance(value, basestring):
+                raise TypeError(
+                    "You must pass in a sequence")
+            self.value.clear()
+            self.value.update(value)
+            return
+        if value is not None:
+            value = value.strip()
+            for el in _options_xpath(self):
+                opt_value = _value_from_option(el)
+                if opt_value == value:
+                    checked_option = el
+                    break
+            else:
+                raise ValueError(
+                    "There is no option with the value of %r" % value)
+        for el in _options_xpath(self):
             if 'selected' in el.attrib:
                 del el.attrib['selected']
-        checked_option.set('selected', '')
+        if value is not None:
+            checked_option.set('selected', '')
 
-    value = property(_value__get, _value__set)
+    def _value__del(self):
+        # FIXME: should del be allowed at all?
+        if self.multiple:
+            self.value.clear()
+        else:
+            self.value = None
+
+    value = property(_value__get, _value__set, _value__del, doc=_value__get.__doc__)
+
+    def value_options(self):
+        """
+        All the possible values this select can have (the ``value``
+        attribute of all the ``<option>`` elements.
+        """
+        options = []
+        for el in _options_xpath(self):
+            options.append(_value_from_option(el))
+        return options
+    value_options = property(value_options, doc=value_options.__doc__)
+
+    def _multiple__get(self):
+        """
+        Boolean attribute: is there a ``multiple`` attribute on this element.
+        """
+        return 'multiple' in self.attrib
+    def _multiple__set(self, value):
+        if value:
+            self.set('multiple', '')
+        elif 'multiple' in self.attrib:
+            del self.attrib['multiple']
+    multiple = property(_multiple__get, _multiple__set, doc=_multiple__get.__doc__)
 
 
 def _append_text_value(existing, new, allow_multiline):

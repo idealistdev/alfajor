@@ -169,8 +169,10 @@ def test_textarea():
 
     textarea = browser.document.forms[0]['textarea'][0]
     textarea.enter('baz')
-    textarea.enter('\r\nquuX\r\n')
-    textarea.enter('\x08\x08x')
+    # NOTE: Webkit Selenium Browsers seem to trim the string on returned
+    # values (get).  Therefore do not end this test with a whitespace char.
+    textarea.enter('\r\nquuX\r\nY')
+    textarea.enter('\x08\x08\x08x')
     browser.document.forms[0].submit(wait_for='page')
     data = loads(browser.document['#data'].text_content)
     assert data == [['ta', 'baz\r\nquux']]
@@ -222,7 +224,10 @@ def _test_select(form_num, fieldname, value, expected_return):
         strategy()
         browser.document.forms[form_num]['input[type=submit]'][0].click()
         data = loads(browser.document['#data'].text)
-        eq_(data, [[fieldname, expected_return]])
+        if isinstance(expected_return, basestring):
+            expected_return = [expected_return]
+        eq_(sorted(data), [[fieldname, val]
+            for val in sorted(expected_return)])
 
 
 def test_select_empty():
@@ -243,6 +248,16 @@ def test_select_text_only():
 
 def test_select_combo():
     _test_select(0, 'sel', 'combo', 'combo')
+
+
+def test_select_multiple():
+    _test_select(2, 'multi_sel', ['first', 'third'],
+                ['first', 'third'])
+
+
+def test_select_multiple_value_only_and_others():
+    _test_select(2, 'multi_sel', ['second', 'Fourth option'],
+                    ['second', 'Fourth option'])
 
 
 def test_basic_checkbox_state():
