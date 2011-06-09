@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <title>Alfajor recommendator</title>
+  </head>
+  <body>
+    <h1 id="mainTitle">Alfajor Recommendation System</h1>
+    <p>Welcome to ARS.  We will try and recommend you the appropriate
+      alfajor based on your answers to the following simple questions.</p>
+
+    <form action="/results" method="GET">
+      <dl>
+        <dt><label>What is your name?</label></dt>
+        <dd><input type="text" name="name" id="userName" /></dd>
+        <dt><label>How many cookies can you eat in a single sitting?</label></dt>
+        <dd>
+            <select name="cookie_amount">
+              <option>1</option>
+              <option>2</option>
+              <option value="50">More than you could possibly imagine</option>
+              <option value="0">None of your business</option>
+            </select>
+        </dd>
+        <dt>Please check all that apply:</dt>
+        <dd>
+            <ul>
+            <li><label><input type="checkbox" value="true" name="has_eaten_before" />
+                I have eaten an alfajor before.</label></li>
+            <li><label><input type="checkbox" value="true" name="is_not_interested">
+                I am not interested in sweets.</label></li>
+          </ul>
+        </dd>
+        <dd><button type="submit">Recommend</button></dd>
+      </dl>
+    </form>
+
+
+  </body>
+</html>

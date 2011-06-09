@@ -27,7 +27,7 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'Alfajor'
-copyright = '2010, the Alfajor authors and contributors'
+copyright = '2011, the Alfajor authors and contributors'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
