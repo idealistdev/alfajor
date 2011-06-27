@@ -24,7 +24,7 @@ system that under the covers is just an extremely simple `WSGI application`_.
 Let's start by getting to know our example application.  You should be able
 to start it up using the following command: ::
 
-    $ alfajor-invoke tests.examples.webapp:run
+    $ alfajor-invoke docs.examples.webapp:run
 
 Now if you point your web browser at http://127.0.0.1:8009, you should see
 the silly example application.  Try filling in the form a few different ways
@@ -40,10 +40,10 @@ Testing the Example Application
 So now we've seen the application in all it's glory, we'd better write a few
 tests to make sure it is functioning as expected.
 
-Again, cuz we are such good guys over here, we've started a little test suite
+Again, cuzz we are such good guys over here, we've started a little test suite
 that you can kick off pretty easily.  To run the tests simply type: ::
 
-    $ nosetests tests.examples.test_simple
+    $ nosetests docs.examples.test_simple
 
 So let's go on a line-by-line tour through the nosetest test_name_entry in
 tests/examples/test_simple
@@ -64,6 +64,7 @@ will work by appending to your *base_url* or *server_url* setting.
     alfajor.ini file and some iems that you will place in your test modules
     __init__.py file.  For more information checkout
     `Configuring your test suite </intro/config>`_
+    .. todo:: intro/config doesn't exist
 
 Alright now the browser object has loaded the url, it is ready to be poked at.
 
@@ -105,8 +106,3 @@ Okay so the next line we want to enter some data into a form
 
 So we get a handle to the input element that we want to add and simply set the
 :attr:`value` attribute.
-
-
-
-
-
